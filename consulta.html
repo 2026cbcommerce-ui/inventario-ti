@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Consulta - Inventário</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Consulta de Equipamento</h2>
+
+<div class="form-box">
+
+<input type="text" id="busca" placeholder="Digite Service Tag ou Número do Ativo">
+
+<button onclick="buscar()">Consultar</button>
+
+</div>
+
+<div id="resultado"></div>
+
+</div>
+
+<footer>
+Sistema de Inventário • by Fabio Costa
+</footer>
+
+<script>
+
+async function buscar(){
+
+const termo = document.getElementById("busca").value.toLowerCase().trim();
+const resultado = document.getElementById("resultado");
+const botao = document.querySelector("button");
+
+if(!termo){
+alert("Digite um Service Tag ou Ativo");
+return;
+}
+
+/* limpa resultados antigos */
+
+resultado.innerHTML = "🔎 Buscando...";
+
+/* bloqueia clique duplo */
+
+botao.disabled = true;
+
+const url = "https://script.google.com/macros/s/AKfycbzHcCACP6ZThFc9x6LHqpUY6U-wNT0IIiqFuGsFlDQUGeFvWnGnpqanLdmlC56rF8s/exec";
+
+try{
+
+const response = await fetch(url);
+const data = await response.json();
+
+let encontrados = [];
+
+data.forEach(item => {
+
+const servicetag = (item.servicetag || "").toString().toLowerCase();
+const ativo = (item.ativo || "").toString().toLowerCase();
+
+if(servicetag.includes(termo) || ativo.includes(termo)){
+encontrados.push(item);
+}
+
+});
+
+/* monta tabela profissional */
+
+if(encontrados.length > 0){
+
+let tabela = `
+<table style="width:100%;margin-top:20px;border-collapse:collapse">
+
+<tr style="background:#0d3b66;color:white">
+<th style="padding:10px">Departamento</th>
+<th>Equipamento</th>
+<th>Ativo</th>
+<th>Service Tag</th>
+<th>Usuário</th>
+<th>Data</th>
+</tr>
+`;
+
+encontrados.forEach(item => {
+
+tabela += `
+<tr style="background:#2a3442;text-align:center">
+<td style="padding:10px">${item.departamento}</td>
+<td>${item.equipamento}</td>
+<td>${item.ativo}</td>
+<td>${item.servicetag}</td>
+<td>${item.usuario}</td>
+<td>${item.data}</td>
+</tr>
+`;
+
+});
+
+tabela += "</table>";
+
+resultado.innerHTML = tabela;
+
+}else{
+
+resultado.innerHTML = "❌ Nenhum equipamento encontrado.";
+
+}
+
+}catch(error){
+
+resultado.innerHTML = "Erro ao consultar dados.";
+
+}
+
+/* libera botão novamente */
+
+botao.disabled = false;
+
+}
+
+</script>
+</script>
+
+</body>
+</html>

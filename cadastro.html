@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cadastro - Inventário</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Cadastro de Equipamento</h2>
+
+<div class="form-box">
+
+<form id="formInventario">
+
+<input type="text" name="departamento" placeholder="Departamento" required>
+
+<input type="text" name="equipamento" placeholder="Equipamento" required>
+
+<input type="text" name="ativo" placeholder="Número do Ativo" required>
+
+<input type="text" name="servicetag" placeholder="Service Tag" required>
+
+<input type="text" name="usuario" placeholder="Usuário responsável pelo cadastro" required>
+
+<!-- DATA AUTOMÁTICA -->
+<input type="hidden" name="data" id="dataCadastro">
+
+<button type="submit">Salvar Cadastro</button>
+
+</form>
+
+</div>
+
+</div>
+
+<footer>
+Sistema de Inventário • by Fabio Costa
+</footer>
+
+<script>
+
+/* DATA AUTOMÁTICA */
+
+document.addEventListener("DOMContentLoaded", function(){
+
+const campoData = document.getElementById("dataCadastro");
+
+const hoje = new Date().toISOString().split('T')[0];
+
+campoData.value = hoje;
+
+});
+
+
+/* ENVIO PARA GOOGLE SHEETS */
+
+const form = document.getElementById("formInventario");
+
+form.addEventListener("submit", function(e){
+
+e.preventDefault();
+
+const dados = new FormData(form);
+
+fetch("https://script.google.com/macros/s/AKfycbzHcCACP6ZThFc9x6LHqpUY6U-wNT0IIiqFuGsFlDQUGeFvWnGnpqanLdmlC56rF8s/exec",{
+
+method:"POST",
+body:dados
+
+})
+
+.then(response => {
+
+alert("✅ Cadastro efetuado com sucesso!");
+
+form.reset();
+
+})
+
+.catch(error => {
+
+alert("❌ Erro ao enviar cadastro");
+
+});
+
+});
+
+</script>
+
+</body>
+</html>
