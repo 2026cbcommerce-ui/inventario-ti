@@ -1,65 +1,63 @@
-<script>
+function doGet() {
 
-async function buscar(){
+const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Página1");
+const data = sheet.getDataRange().getValues();
 
-const termo = document.getElementById("busca").value.toLowerCase().trim();
+let resultado = [];
 
-if(!termo){
-alert("Digite um Service Tag ou Ativo");
-return;
-}
+for(let i = 1; i < data.length; i++){
 
-const url = "https://script.google.com/macros/s/AKfycbzHcCACP6ZThFc9x6LHqpUY6U-wNT0IIiqFuGsFlDQUGeFvWnGnpqanLdmlC56rF8s/exec";
-
-try{
-
-const response = await fetch(url);
-
-const data = await response.json();
-
-let html = "";
-
-data.forEach(item => {
-
-const servicetag = (item.servicetag || "").toString().toLowerCase();
-const ativo = (item.ativo || "").toString().toLowerCase();
-
-if(servicetag.includes(termo) || ativo.includes(termo)){
-
-html += `
-<div class="resultado">
-
-<b>Departamento:</b> ${item.departamento || ""}<br><br>
-
-<b>Equipamento:</b> ${item.equipamento || ""}<br><br>
-
-<b>Ativo:</b> ${item.ativo || ""}<br><br>
-
-<b>Service Tag:</b> ${item.servicetag || ""}<br><br>
-
-<b>Usuário:</b> ${item.usuario || ""}<br><br>
-
-<b>Data:</b> ${item.data || ""}
-
-</div>
-`;
-
-}
-
+resultado.push({
+linha: i+1,
+departamento: data[i][0],
+equipamento: data[i][1],
+ativo: data[i][2],
+servicetag: data[i][3],
+usuario: data[i][4],
+data: data[i][5]
 });
 
-if(html === ""){
-html = "<p>Nenhum equipamento encontrado.</p>";
 }
 
-document.getElementById("resultado").innerHTML = html;
-
-}catch(error){
-
-document.getElementById("resultado").innerHTML = "Erro ao consultar dados.";
+return ContentService
+.createTextOutput(JSON.stringify(resultado))
+.setMimeType(ContentService.MimeType.JSON);
 
 }
 
+
+
+function doPost(e){
+
+const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Página1");
+
+if(e.parameter.acao == "editar"){
+
+const linha = Number(e.parameter.linha);
+
+sheet.getRange(linha,1).setValue(e.parameter.departamento);
+sheet.getRange(linha,2).setValue(e.parameter.equipamento);
+sheet.getRange(linha,3).setValue(e.parameter.ativo);
+sheet.getRange(linha,4).setValue(e.parameter.servicetag);
+sheet.getRange(linha,5).setValue(e.parameter.usuario);
+
+return ContentService
+.createTextOutput("ok");
+
 }
 
-</script>
+
+/* cadastro normal */
+
+sheet.appendRow([
+e.parameter.departamento,
+e.parameter.equipamento,
+e.parameter.ativo,
+e.parameter.servicetag,
+e.parameter.usuario,
+new Date()
+]);
+
+return ContentService.createTextOutput("ok");
+
+}

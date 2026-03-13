@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
@@ -36,6 +37,8 @@ Sistema de Inventário • by Fabio Costa
 
 <script>
 
+const url = "https://script.google.com/macros/s/AKfycbzHcCACP6ZThFc9x6LHqpUY6U-wNT0IIiqFuGsFlDQUGeFvWnGnpqanLdmlC56rF8s/exec";
+
 async function buscar(){
 
 const termo = document.getElementById("busca").value.toLowerCase().trim();
@@ -47,15 +50,8 @@ alert("Digite um Service Tag ou Ativo");
 return;
 }
 
-/* limpa resultados antigos */
-
 resultado.innerHTML = "🔎 Buscando...";
-
-/* bloqueia clique duplo */
-
 botao.disabled = true;
-
-const url = "https://script.google.com/macros/s/AKfycbzHcCACP6ZThFc9x6LHqpUY6U-wNT0IIiqFuGsFlDQUGeFvWnGnpqanLdmlC56rF8s/exec";
 
 try{
 
@@ -75,8 +71,6 @@ encontrados.push(item);
 
 });
 
-/* monta tabela profissional */
-
 if(encontrados.length > 0){
 
 let tabela = `
@@ -89,6 +83,7 @@ let tabela = `
 <th>Service Tag</th>
 <th>Usuário</th>
 <th>Data</th>
+<th>Editar</th>
 </tr>
 `;
 
@@ -102,6 +97,9 @@ tabela += `
 <td>${item.servicetag}</td>
 <td>${item.usuario}</td>
 <td>${item.data}</td>
+<td>
+<button onclick="editar(${item.linha})">✏️</button>
+</td>
 </tr>
 `;
 
@@ -123,13 +121,43 @@ resultado.innerHTML = "Erro ao consultar dados.";
 
 }
 
-/* libera botão novamente */
-
 botao.disabled = false;
 
 }
 
-</script>
+
+
+async function editar(linha){
+
+const departamento = prompt("Departamento:");
+const equipamento = prompt("Equipamento:");
+const ativo = prompt("Ativo:");
+const servicetag = prompt("Service Tag:");
+const usuario = prompt("Usuário:");
+
+if(!departamento) return;
+
+const dados = new URLSearchParams();
+
+dados.append("acao","editar");
+dados.append("linha",linha);
+dados.append("departamento",departamento);
+dados.append("equipamento",equipamento);
+dados.append("ativo",ativo);
+dados.append("servicetag",servicetag);
+dados.append("usuario",usuario);
+
+await fetch(url,{
+method:"POST",
+body:dados
+});
+
+alert("Registro atualizado!");
+
+buscar();
+
+}
+
 </script>
 
 </body>
